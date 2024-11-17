@@ -1,0 +1,13 @@
+
+body{
+    background-image: url("{{ asset('assets/img/backgroung_login.jpeg') }}");
+}
+
+.container{
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

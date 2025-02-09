@@ -5,22 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Koordinate extends Model
+class Audio extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'koordinat_x',
-        'koordinat_y',
-        'koordinat_z',
-        'tipe',
-        'keterangan',
+        'audio',
+        'title',
         'panorama_id',
-        'target',
+
     ];
 
     public function panorama()
     {
+        // Relasi one to many 
+        // 1 panorama bisa memiliki N koordinat
         return $this->belongsTo(Panorama::class);
     }
 }

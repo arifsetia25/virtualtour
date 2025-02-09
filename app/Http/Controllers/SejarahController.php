@@ -2,24 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Audio;
-use App\Models\Galeri;
-use App\Models\Koordinate;
-use App\Models\Panorama;
 use Illuminate\Http\Request;
 
-class DashboardController extends Controller
+class SejarahController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function sejarah()
     {
-        $jumlah_koordinat = Koordinate::all()->count();
-        $jumlah_panorama = Panorama::all()->count();
-        $jumlah_galeri = Galeri::all()->count();
-        $jumlah_audio = Audio::all()->count();
-        return view('admin.dashboard', compact('jumlah_panorama', 'jumlah_koordinat', 'jumlah_galeri', 'jumlah_audio'));
+        return view("user.sejarah");
     }
 
     /**

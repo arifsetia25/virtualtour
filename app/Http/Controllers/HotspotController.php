@@ -6,6 +6,7 @@ use App\Models\Koordinate;
 use App\Models\Panorama;
 use GuzzleHttp\Promise\Create;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HotspotController extends Controller
 {
@@ -14,7 +15,26 @@ class HotspotController extends Controller
      */
     public function index()
     {
-        //
+
+        $hotspot = Panorama::latest()->paginate(10);
+        $panoramas = Panorama::with('coordinates')->get();
+
+        // $panorama = Panorama::latest()->paginate(10);
+        // $koordinates = Koordinate::latest();
+        // $data = DB::table('panoramas')
+        //     ->leftJoin('koordinates', 'panoramas.id', '=', 'koordinates.panorama_id')
+        //     ->select(
+        //         'panoramas.id as id',
+        //         'panoramas.gambar as gambar',
+        //         'panoramas.title as title',
+        //         'koordinates.koordinat_x as x',
+        //         'koordinates.koordinat_y as y',
+        //         'koordinates.koordinat_z as z'
+        //     )
+        //     ->get();
+
+
+        return view('admin.panorama.hotspot', compact('panoramas', 'hotspot'));
     }
 
     /**
@@ -28,18 +48,7 @@ class HotspotController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, String $id)
-    {
-        $request->validate([
-            'koordinat' => 'required',
-            'keterangan' => 'required'
-        ]);
-
-        $panorama = Panorama::all()->find($id);
-        Koordinate::create([
-            'koordinat_x' => $request->x,
-        ]);
-    }
+    public function store(Request $request, String $id) {}
 
     /**
      * Display the specified resource.
@@ -70,6 +79,9 @@ class HotspotController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $coordinate = Koordinate::findOrFail($id); // Cari koordinat berdasarkan ID
+        $coordinate->delete(); // Hapus data
+
+        return redirect()->route('hotspot.index')->with('success', 'Koordinat berhasil dihapus.');
     }
 }

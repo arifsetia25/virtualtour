@@ -2,25 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Audio;
 use App\Models\Koordinate;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Panorama;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PanoramaController extends Controller
 {
-    public function index(): View
+    public function virtualtour(Request $request)
     {
-        $panorama = Panorama::latest()->paginate(10);
-        return view('admin.panorama.panorama', compact('panorama'));
+        $id = 54;
+        if ($request->filled('id')) {
+            $id = $request->get('id');
+        }
+
+        $panorama = Panorama::find($id);
+        $koordinat = Koordinate::Where('panorama_id', $id)
+            ->leftJoin('panoramas', function ($join) {
+                $join->on('koordinates.panorama_id', '=', 'panoramas.id')
+                    ->where('koordinates.tipe', 'Link');
+            })
+            ->select('panoramas.gambar as target_gambar', 'panoramas.title as title', 'koordinates.*')->get();
+
+
+
+
+        $dataAudio = Audio::select('audio')->where('panorama_id', $id)->get();
+        return view('user.virtualtour', compact('panorama',  'koordinat', 'dataAudio'));
     }
 
-    public function uploadGambar(Request $request): RedirectResponse
+
+    public function index(): View
+    {
+        $panorama = Panorama::paginate(10);
+        return view('admin.panorama.panorama', compact('panorama',));
+    }
+
+    public function uploadGambar(Request $request)
     {
         $request->validate([
-            'gambar' => 'required|mimes:jpg,jpeg,png,gif',
+            'gambar' => 'required|mimes:jpg,jpeg,png',
             'title' => 'required'
         ]);
 
@@ -32,26 +57,26 @@ class PanoramaController extends Controller
         // $path = $file->storeAs('gambars', $filename, 'public');
 
         $image = $request->file('gambar');
-        $image->storeAs('public/images', $image->getClientOriginalName());
+        $image->storeAs('public/images', $image->hashName());
 
         Panorama::create([
-            'gambar' => $image->getClientOriginalName(),
+            'gambar' => $image->hashName(),
             'title' => $request->title
         ]);
 
-        return redirect()->route('panorama')->with(['message', 'Data berhasil disimpan']);
+        return redirect()->route('panorama')->with('success', 'Data berhasil disimpan');
     }
 
     public function show($id)
     {
         $panorama = Panorama::find($id);
         $koordinat = Koordinate::Where('panorama_id', $id)
-            ->leftJoin('panoramas', function($join) {
+            ->leftJoin('panoramas', function ($join) {
                 $join->on('koordinates.panorama_id', '=', 'panoramas.id')
                     ->where('koordinates.tipe', 'Link');
             })
             ->select('panoramas.gambar as target_gambar', 'koordinates.*')->get();
-            
+
         $options_tipe = [
             '1' => 'Info',
             '2' => 'Link'
@@ -64,7 +89,7 @@ class PanoramaController extends Controller
 
     public function storeHotspot(Request $request, $id)
     {
-        file_put_contents("hotspot.txt", $request->tipe);
+        //  file_put_contents("hotspot.txt", $request->tipe);
         $request->validate([
             'koordinat' => 'required',
             'tipe' => 'required',
@@ -88,5 +113,17 @@ class PanoramaController extends Controller
         ]);
 
         return redirect()->route('panorama.show', ['id' => $id])->with('success', 'Data Berhasil di simpan!');
+    }
+
+    public function destroy($id)
+    {
+        // Cari data panorama berdasarkan ID
+        $panorama = Panorama::findOrFail($id);
+
+        // Hapus panorama dan koordinat terkait
+        $panorama->delete();
+
+        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
+        return redirect()->back()->with('success', 'Data panorama dan koordinat berhasil dihapus.');
     }
 }

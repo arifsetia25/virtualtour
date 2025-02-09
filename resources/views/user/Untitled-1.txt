@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panolens.js Example</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/panolens/build/panolens.min.js"></script>
+  <style>
+    body { margin: 0; }
+    #container { width: 100%; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <script>
+    // Create a viewer
+    const container = document.getElementById('container');
+    const viewer = new PANOLENS.Viewer({ container });
+
+    // Create panorama images
+    const panorama1 = new PANOLENS.ImagePanorama('path/to/your/image1.jpg');
+    const panorama2 = new PANOLENS.ImagePanorama('path/to/your/image2.jpg');
+
+    // Add infospot in panorama1 to link to panorama2
+    const infospot1 = new PANOLENS.Infospot(500, PANOLENS.DataImage.Info);
+    infospot1.position.set(1000, 0, -500); // Adjust position as needed
+    infospot1.addHoverText('Go to Panorama 2');
+    infospot1.addEventListener('click', () => {
+      viewer.setPanorama(panorama2);
+    });
+    panorama1.add(infospot1);
+
+    // Add infospot in panorama2 to link back to panorama1
+    const infospot2 = new PANOLENS.Infospot(500, PANOLENS.DataImage.Info);
+    infospot2.position.set(-1000, 0, 500); // Adjust position as needed
+    infospot2.addHoverText('Go back to Panorama 1');
+    infospot2.addEventListener('click', () => {
+      viewer.setPanorama(panorama1);
+    });
+    panorama2.add(infospot2);
+
+    // Add panoramas to the viewer
+    viewer.add(panorama1, panorama2);
+  </script>
+</body>
+</html>

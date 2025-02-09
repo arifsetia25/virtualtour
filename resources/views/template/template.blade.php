@@ -5,229 +5,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Virtual Tour Admin</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/105/three.js"></script>
     <script src="{{ asset('assets/js/panolens.min.js') }}"></script>
     <script src="https://kit.fontawesome.com/cc1d8ebad0.js" crossorigin="anonymous"></script>
-    <!-- Fonts and icons -->
-    <script src="{{ asset('assets/js/plugin/webfont/webfont.min.js') }}"></script>
-    <script>
-        WebFont.load({
-            google: {
-                families: ["Public Sans:300,400,500,600,700"]
-            },
-            custom: {
-                families: [
-                    "Font Awesome 5 Solid",
-                    "Font Awesome 5 Regular",
-                    "Font Awesome 5 Brands",
-                    "simple-line-icons",
-                ],
-                urls: ["{{ asset('assets/css/fonts.min.css') }}"],
-            },
-            active: function() {
-                sessionStorage.fonts = true;
-            },
-        });
-    </script>
 
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="{{ asset ('assets/css/bootstrap.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset ('assets/css/plugins.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
+    <style>
+        body {
+            overflow-x: hidden;
+
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: #1A2135;
+            transition: left 0.3s;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+        }
+
+        .content.active {
+            margin-left: 250px;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #999999;
+            /* Warna garis */
+            margin: 10px 0;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="wrapper">
-        <!-- Sidebar -->
-        <div class="sidebar" data-background-color="dark">
-            <div class="sidebar-logo">
-                <!-- Logo Header -->
-                <div class="logo-header" data-background-color="dark">
-                    <a href="{{ route('dashboard.index') }}" class="logo">
-                        <img src="{{ asset('assets/img/logo_curug_cipeuteuy.jpg') }}" alt="navbar brand" class="navbar-brand" height="60px" width="180px" />
-                    </a>
-                    <div class="nav-toggle">
-                        <button class="btn btn-toggle toggle-sidebar">
-                            <i class="gg-menu-right"></i>
-                        </button>
-                        <button class="btn btn-toggle sidenav-toggler">
-                            <i class="gg-menu-left"></i>
-                        </button>
-                    </div>
-                    <button class="topbar-toggler more">
-                        <i class="gg-more-vertical-alt"></i>
+
+    <div class="sidebar" id="sidebar">
+        <div class="p-2">
+            <a href="{{ route('dashboard.index') }}" class="logo">
+                <img src="{{ asset('assets/img/logo_curug_cipeuteuy.jpg') }}" alt="navbar brand" class="navbar-brand" height="60px" width="180px" />
+            </a>
+            <ul class="nav flex-column p-3 ">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('dashboard.index') }}"><i class="fas fa-home" style="color: #fafafa;"></i> Dashboard</a>
+                </li>
+                <hr class="divider">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ route('panorama') }}"><i class="fa-solid fa-panorama" style="color: #fafafa;"></i> Panorama</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url('hotspot') }}"><i class="fa-solid fa-location-dot" style="color: #fafafa;"></i> Koordinat</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url('audio') }}"><i class="fa-solid fa-file-audio" style="color: #fafafa;"></i> Audio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url('admin/informasi') }}"><i class="fa-solid fa-images" style="color: #fafafa;"></i> Informasi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url('admin/galeri') }}"><i class="fa-solid fa-circle-info" style="color: #fafafa;"></i> Galeri</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content" id="content">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <button class="btn" style="margin: 5px;" id="toggleSidebar"><i class="fa-solid fa-bars fa-lg"></i></button>
+            <div class="ms-auto">
+                <div class="dropdown">
+                    <button class="btn  dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="assets/img/profile.jpg" width="30px" height="30px" alt="..." class="avatar-img rounded-circle" />
                     </button>
-                </div>
-                <!-- End Logo Header -->
-            </div>
-
-            <div class="sidebar-wrapper scrollbar scrollbar-inner">
-                <div class="sidebar-content">
-                    <ul class="nav nav-secondary">
-                        <li class="nav-item active">
-                            <a href="{{ route('dashboard.index') }}" aria-expanded="false">
-                                <i class="fas fa-home"></i>
-                                <p>Dashboard</p>
-                            </a>
-                        </li>
-                        <li class="nav-section">
-                            <span class="sidebar-mini-icon">
-                                <i class="fa fa-ellipsis-h"></i>
-                            </span>
-                            <h4 class="text-section">Menus</h4>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('panorama') }}">
-                                <i class="fa-solid fa-image" style="color: #999999;"></i>
-                                <p>Panorama</p>
-
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a data-bs-toggle="collapse" href="#sidebarLayouts">
-                                <i class="fa-solid fa-signs-post" style="color: #999999;"></i>
-                                <p>Hotspot</p>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <!-- End Sidebar -->
-        <div class="main-panel">
-            <div class="main-header">
-                <div class="main-header-logo">
-                    <!-- Logo Header -->
-                    <div class="logo-header" data-background-color="dark">
-                        <a href="index.html" class="logo">
-                            <img src="assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20" />
-                        </a>
-                        <div class="nav-toggle">
-                            <button class="btn btn-toggle toggle-sidebar">
-                                <i class="gg-menu-right"></i>
-                            </button>
-                            <button class="btn btn-toggle sidenav-toggler">
-                                <i class="gg-menu-left"></i>
-                            </button>
-                        </div>
-                        <button class="topbar-toggler more">
-                            <i class="gg-more-vertical-alt"></i>
-                        </button>
+                    <span style="padding-right: 10px;">
+                        <span class="op-7">Hi,</span>
+                        <span class="fw-bold">{{Auth::user()->name}}</span>
+                    </span>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="{{ route('auth.logout') }}">Logout</a>
                     </div>
-                    <!-- End Logo Header -->
                 </div>
-
-                <!-- Navbar Header -->
-                <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
-                    <div class="container-fluid">
-                        <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <button type="submit" class="btn btn-search pe-1">
-                                        <i class="fa fa-search search-icon"></i>
-                                    </button>
-                                </div>
-                                <input type="text" placeholder="Search ..." class="form-control" />
-                            </div>
-                        </nav>
-                        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-                            <li class="nav-item topbar-user dropdown hidden-caret">
-                                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
-                                    <div class="avatar-sm">
-                                        <img src="assets/img/profile.jpg" alt="..." class="avatar-img rounded-circle" />
-                                    </div>
-                                    <span class="profile-username">
-                                        <span class="op-7">Hi,</span>
-                                        <span class="fw-bold">{{Auth::user()->name}}</span>
-                                    </span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-user animated fadeIn">
-                                    <div class="dropdown-user-scroll scrollbar-outer">
-                                        <li>
-                                            <div class="user-box">
-                                                <div class="avatar-lg">
-                                                    <img src="assets/img/profile.jpg" alt="image profile" class="avatar-img rounded" />
-                                                </div>
-                                                <div class="u-text">
-                                                    <h4>{{Auth::user()->name}}</h4>
-                                                    <p class="text-muted">{{Auth::user()->email}}</p>
-                                                    <a href="profile.html" class="btn btn-xs btn-secondary btn-sm">View
-                                                        Profile</a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">My Profile</a>
-                                            <a class="dropdown-item" href="#">My Balance</a>
-                                            <a class="dropdown-item" href="#">Inbox</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="#">Account Setting</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="{{ route('auth.logout') }}">Logout</a>
-                                        </li>
-                                    </div>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <!-- End Navbar -->
             </div>
+        </nav>
 
+        <div class="container mt-4">
             @yield('content')
-
-            <footer class="footer">
-                <div class="container-fluid d-flex justify-content-between">
-                    <nav class="pull-left">
-                    </nav>
-                    <div class="copyright">
-                        2024, made with <i class="fa fa-heart heart text-danger"></i> by
-                        arifsetia
-                    </div>
-                    <div>
-                    </div>
-                </div>
-            </footer>
         </div>
 
-        <!--   Core JS Files   -->
-        <script src="{{ asset('assets/js/core/jquery-3.7.1.min.js') }}"></script>
-        <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
-        <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+        <!-- <footer class="footer">
+            <p>© 2024 Semua Hak Dilindungi</p>
+        </footer> -->
+    </div>
 
-
-
-        <!-- jQuery Scrollbar -->
-        <script src="{{ asset('assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
-
-        <!-- Chart JS -->
-        <script src="assets/js/plugin/chart.js/chart.min.js"></script>
-
-        <!-- jQuery Sparkline -->
-        <script src="assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
-
-        <!-- Chart Circle -->
-        <script src="assets/js/plugin/chart-circle/circles.min.js"></script>
-
-        <!-- Datatables -->
-        <script src="assets/js/plugin/datatables/datatables.min.js"></script>
-
-        <!-- Bootstrap Notify -->
-        <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
-
-        <!-- jQuery Vector Maps -->
-        <script src="assets/js/plugin/jsvectormap/jsvectormap.min.js"></script>
-        <script src="assets/js/plugin/jsvectormap/world.js"></script>
-
-        <!-- Sweet Alert -->
-        <script src="{{ asset('assets/js/plugin/sweetalert/sweetalert.min.js') }}"></script>
-
-        <!-- Kaiadmin JS -->
-        <script src="{{ asset('assets/js/kaiadmin.min.js') }}"></script>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#toggleSidebar').click(function() {
+                $('#sidebar').toggleClass('active');
+                $('#content').toggleClass('active');
+            });
+        });
+    </script>
 </body>
 
 </html>
